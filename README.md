@@ -9,11 +9,11 @@ In _calculate_probabilities_ mode text-generator analizes text and calculates fo
 
 It can be launched in two modes.
 * calculate_probabilities
-  *  -h, --help                               show help message and exit
-  * --input_file INPUT_FILE                   file to read text from
-  * --probabilities_file PROBABILITIES_FILE   file to write probabilities to
-  * --depth DEPTH                             maximum length of the sequence of tokens
-  * --regex REGEX                             regular expression to identify token
+  * -h, --help                                _show help message and exit_
+  * --input_file INPUT_FILE                   _file to read text from_
+  * --probabilities_file PROBABILITIES_FILE   _file to write probabilities to_
+  * --depth DEPTH                             _maximum length of the sequence of tokens_
+  * --regex REGEX                             _regular expression to identify token_
 ```shell
 $ python3 main.py calculate_probabilities [-h] [--input_file INPUT_FILE] [--probabilities_file PROBABILITIES_FILE] [--depth DEPTH] [--regex REGEX]
 ```
@@ -23,11 +23,11 @@ $ python3 main.py calculate_probabilities --input_file roadside_picnic.txt --pro
 ```
 
 * generate_text
-  *  -h, --help                               show this help message and exit
-  *  --probabilities_file PROBABILITIES_FILE  file to read probabilities from
-  *  --depth DEPTH                            maximum length of the sequence of tokens
-  *  --tokens_amount TOKENS_AMOUNT            length of text to be generated, in tokens
-  *  --output_file OUTPUT_FILE                file to write text to (by default is set to sys.stdout)
+  *  -h, --help                               _show this help message and exit_
+  *  --probabilities_file PROBABILITIES_FILE  _file to read probabilities from_
+  *  --depth DEPTH                            _maximum length of the sequence of tokens_
+  *  --tokens_amount TOKENS_AMOUNT            _length of text to be generated, in tokens_
+  *  --output_file OUTPUT_FILE                _file to write text to (by default is set to sys.stdout)_
 ```shell
 $ python3 main.py generate_text [-h] [--probabilities_file PROBABILITIES_FILE] [--depth DEPTH] [--tokens_amount TOKENS_AMOUNT] [--output_file OUTPUT_FILE]
 ```
