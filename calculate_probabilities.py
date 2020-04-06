@@ -1,10 +1,11 @@
 import string
 import collections
 import pickle
+import re
 
 
 def _remove_trash(word):
-    filtered_word =  ''.join([char if (char.isalpha() or char in string.punctuation) else ' ' for char in word])
+    filtered_word = ''.join([char if (char.isalpha() or char in string.punctuation) else ' ' for char in word])
     return list(filtered_word.split())
 
 
@@ -28,26 +29,32 @@ def _split_punctuation(word):
     return prefix + middle + suffix[::-1]
 
 
-def _get_tockens(input_file):
+def _get_tokens(input_file, regex):
     with open(input_file, "r") as file:
         data = list(file.read().split())
+
+    if regex:
+        tokens = []
+        for word in data:
+            tokens += re.findall(regex, word)
+        return tokens
 
     filtered_data = []
     for word in data:
         filtered_data += _remove_trash(word)
 
-    tockens = []
+    tokens = []
     for word in filtered_data:
-        tockens += _split_punctuation(word)
-    return tockens
+        tokens += _split_punctuation(word)
+    return tokens
 
 
-def _get_probabilities(tockens, depth):
+def _get_probabilities(tokens, depth):
     probabilities = dict()
     sequences = [collections.deque() for i in range(depth)]
-    for i in range(len(tockens)):
+    for i in range(len(tokens)):
         for length in range(1, depth + 1):
-            sequences[length - 1].append(tockens[i])
+            sequences[length - 1].append(tokens[i])
             if length < i + 1:
                 sequences[length - 1].popleft()
             if length <= i + 1:
@@ -72,7 +79,7 @@ def _save_probabilities(probabilities, probabilities_file):
         pickle.dump(probabilities, file)
 
 
-def calculate(input_file, probabilities_file, depth):
-    tockens = _get_tockens(input_file)
-    probabilities = _get_probabilities(tockens, depth)
+def calculate(input_file, probabilities_file, depth, regex):
+    tokens = _get_tokens(input_file, regex)
+    probabilities = _get_probabilities(tokens, depth)
     _save_probabilities(probabilities, probabilities_file)
