@@ -4,7 +4,8 @@ import pickle
 
 
 def _remove_trash(word):
-    return "".join(filter(lambda x: x.isalpha() or x in string.punctuation, word))
+    filtered_word =  ''.join([char if (char.isalpha() or char in string.punctuation) else ' ' for char in word])
+    return list(filtered_word.split())
 
 
 def _split_punctuation(word):
@@ -20,16 +21,24 @@ def _split_punctuation(word):
         suffix.append(word[last_letter])
         last_letter -= 1
 
-    return prefix + [word[first_letter: last_letter + 1].lower()] + suffix[::-1]
+    middle = []
+    if first_letter <= last_letter:
+        middle = [word[first_letter: last_letter + 1].lower()]
+
+    return prefix + middle + suffix[::-1]
 
 
 def _get_tockens(input_file):
     with open(input_file, "r") as file:
         data = list(file.read().split())
 
-    tockens = []
+    filtered_data = []
     for word in data:
-        tockens += _split_punctuation(_remove_trash(word))
+        filtered_data += _remove_trash(word)
+
+    tockens = []
+    for word in filtered_data:
+        tockens += _split_punctuation(word)
     return tockens
 
 
@@ -67,6 +76,3 @@ def calculate(input_file, probabilities_file, depth):
     tockens = _get_tockens(input_file)
     probabilities = _get_probabilities(tockens, depth)
     _save_probabilities(probabilities, probabilities_file)
-
-
-calculate("input_file.txt", "probabilities_file.txt", 3)

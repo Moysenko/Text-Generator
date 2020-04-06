@@ -18,8 +18,8 @@ subparser_calculate_probabilities.add_argument('--probabilities_file', help='fil
 subparser_calculate_probabilities.add_argument('--depth', type=int, help='maximum length of the sequence of tokens')
 
 subparser_generate_text.add_argument('--probabilities_file', help='file to read probabilities from')
-subparser_generate_text.add_argument('--depth', help='maximum length of the sequence of tokens')
-subparser_generate_text.add_argument('--tokens_amount', help='length of text to be generated, in tokens')
+subparser_generate_text.add_argument('--depth', type=int, help='maximum length of the sequence of tokens')
+subparser_generate_text.add_argument('--tokens_amount', type=int, help='length of text to be generated, in tokens')
 subparser_generate_text.add_argument('--output_file', default='to console',
                                      help='file to write text to (by default is set to sys.stdout)')
 
@@ -28,4 +28,4 @@ args = parser.parse_args()
 if args.mode == 'calculate_probabilities':
     calculate_probabilities.calculate(args.input_file, args.probabilities_file, args.depth)
 else:
-    generate_text.generate(args.probability_file, args.depth, args.tokens_amount, args.output_file)
+    generate_text.generate(args.probabilities_file, args.depth, args.tokens_amount, args.output_file)
