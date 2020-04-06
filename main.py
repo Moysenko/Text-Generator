@@ -19,7 +19,8 @@ subparser_calculate_probabilities.add_argument('--probabilities_file', required=
                                                help='file to write probabilities to')
 subparser_calculate_probabilities.add_argument('--depth', type=int, required=True,
                                                help='maximum length of the sequence of tokens')
-# subparser_calculate_probabilities.add_argument()
+subparser_calculate_probabilities.add_argument('--regex', default='',
+                                               help='regular expression to identify token')
 
 subparser_generate_text.add_argument('--probabilities_file', required=True,
                                      help='file to read probabilities from')
@@ -33,6 +34,6 @@ subparser_generate_text.add_argument('--output_file', default='to console',
 args = parser.parse_args()
 
 if args.mode == 'calculate_probabilities':
-    calculate_probabilities.calculate(args.input_file, args.probabilities_file, args.depth)
+    calculate_probabilities.calculate(args.input_file, args.probabilities_file, args.depth, args.regex)
 else:
     generate_text.generate(args.probabilities_file, args.depth, args.tokens_amount, args.output_file)
