@@ -13,13 +13,20 @@ subparsers = parser.add_subparsers(help='In case mode is set to "calculate_proba
 subparser_calculate_probabilities = subparsers.add_parser('calculate_probabilities')
 subparser_generate_text = subparsers.add_parser('generate_text')
 
-subparser_calculate_probabilities.add_argument('--input_file', help='file to read text from')
-subparser_calculate_probabilities.add_argument('--probabilities_file', help='file to write probabilities to')
-subparser_calculate_probabilities.add_argument('--depth', type=int, help='maximum length of the sequence of tokens')
+subparser_calculate_probabilities.add_argument('--input_file', required=True,
+                                               help='file to read text from')
+subparser_calculate_probabilities.add_argument('--probabilities_file', required=True,
+                                               help='file to write probabilities to')
+subparser_calculate_probabilities.add_argument('--depth', type=int, required=True,
+                                               help='maximum length of the sequence of tokens')
+# subparser_calculate_probabilities.add_argument()
 
-subparser_generate_text.add_argument('--probabilities_file', help='file to read probabilities from')
-subparser_generate_text.add_argument('--depth', type=int, help='maximum length of the sequence of tokens')
-subparser_generate_text.add_argument('--tokens_amount', type=int, help='length of text to be generated, in tokens')
+subparser_generate_text.add_argument('--probabilities_file', required=True,
+                                     help='file to read probabilities from')
+subparser_generate_text.add_argument('--depth', type=int, required=True,
+                                     help='maximum length of the sequence of tokens')
+subparser_generate_text.add_argument('--tokens_amount', type=int, required=True,
+                                     help='length of text to be generated, in tokens')
 subparser_generate_text.add_argument('--output_file', default='to console',
                                      help='file to write text to (by default is set to sys.stdout)')
 
