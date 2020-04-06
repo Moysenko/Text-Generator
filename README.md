@@ -13,12 +13,13 @@ It can be launched in two modes.
   * --input_file INPUT_FILE                   file to read text from
   * --probabilities_file PROBABILITIES_FILE   file to write probabilities to
   * --depth DEPTH                             maximum length of the sequence of tokens
+  * --regex REGEX                             regular expression to identify token
 ```shell
-$ python3 main.py calculate_probabilities [-h] [--input_file INPUT_FILE] [--probabilities_file PROBABILITIES_FILE] [--depth DEPTH]
+$ python3 main.py calculate_probabilities [-h] [--input_file INPUT_FILE] [--probabilities_file PROBABILITIES_FILE] [--depth DEPTH] [--regex REGEX]
 ```
 > example
 ```shell
-$ python3 main.py calculate_probabilities --input_file roadside_picnic.txt --probabilities_file probabilities.txt --depth 3
+$ python3 main.py calculate_probabilities --input_file roadside_picnic.txt --probabilities_file probabilities.txt --depth 3 --regex "\d+"
 ```
 
 * generate_text
