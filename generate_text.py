@@ -11,6 +11,13 @@ def _get_probability(probability_file):
     return probability
 
 
+def _get_punctuation_pair(char):
+    if char in '()':
+        return '()'[char == '(']
+    else:
+        return char
+
+
 def _get_random_token(probability):
     random_number = random.random()
     for token, chance in probability.items():
@@ -20,17 +27,19 @@ def _get_random_token(probability):
             random_number -= chance
 
 
-def _is_bad_token(text, token):
+def _is_valid_token(text, token, stack):
     if (not text or text[-1] in string.punctuation) and token in string.punctuation:
-        return True
-    return False
+        return False
+    if token == ')' and (not stack or stack[-1] != '('):
+        return False
+    return True
 
 
-def _get_random_valid_token(text, probability):
+def _get_random_valid_token(text, probability, stack):
     attempts = 100
     while True:
         token = _get_random_token(probability)
-        if not _is_bad_token(text, token):
+        if _is_valid_token(text, token, stack):
             return token
         attempts -= 1
         if not attempts:
@@ -39,7 +48,7 @@ def _get_random_valid_token(text, probability):
 
 
 def _modifyed_token(text, token):
-    if (not token.isalpha() and token != '(') or (text and text[-1]== '('):
+    if (not token.isalpha() and token != '(') or (text and text[-1] == '('):
         return token
     if len(text) == 0:
         return token.capitalize()
@@ -48,21 +57,16 @@ def _modifyed_token(text, token):
     return ' ' + token
 
 
-def _get_punctuation_pair(char):
-    if char in '()':
-        return '()'[char == '(']
-    else:
-        return char
-
-
 def _generate_text(probability, depth, tokens_amount):
     last_tokens = collections.deque()
     text = ''
     stack = []  # stack of opened brackets and quotes
     for step in range(tokens_amount):
-        while (len(last_tokens) > depth) or (not tuple(last_tokens) in probability):
+        while (len(last_tokens) > depth) or (not tuple(last_tokens) in probability) or\
+                not list(filter(lambda token: _is_valid_token(text, token, stack),
+                                probability[tuple(last_tokens)].keys())):
             last_tokens.popleft()
-        token = _get_random_valid_token(text, probability[tuple(last_tokens)])
+        token = _get_random_valid_token(text, probability[tuple(last_tokens)], stack)
 
         if token in '?!.' and stack:
             token = _get_punctuation_pair(stack[-1])
