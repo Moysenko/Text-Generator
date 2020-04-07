@@ -5,6 +5,12 @@ import string
 import sys
 
 
+OPEN_BRACKETS = '([{<'
+CLOSE_BRACKETS = ')]}>'
+SENTENSE_ENDING_PUNCTUATION = '.?!'
+PAIRED_PUNCTUATION = OPEN_BRACKETS + CLOSE_BRACKETS + '"\''
+
+
 def _get_probability(probability_file):
     with open(probability_file, "rb") as file:
         probability = pickle.load(file)
@@ -12,10 +18,11 @@ def _get_probability(probability_file):
 
 
 def _get_punctuation_pair(char):
-    if char in '()':
-        return '()'[char == '(']
-    else:
-        return char
+    if char in OPEN_BRACKETS:
+        return CLOSE_BRACKETS[OPEN_BRACKETS.find(char)]
+    if char in CLOSE_BRACKETS:
+        return OPEN_BRACKETS[CLOSE_BRACKETS.find(char)]
+    return char
 
 
 def _get_random_token(probability):
@@ -30,7 +37,7 @@ def _get_random_token(probability):
 def _is_valid_token(text, token, stack):
     if (not text or text[-1] in string.punctuation) and token in string.punctuation:
         return False
-    if token == ')' and (not stack or stack[-1] != '('):
+    if token in CLOSE_BRACKETS and (not stack or _get_punctuation_pair(stack[-1]) != token):
         return False
     return True
 
@@ -48,11 +55,13 @@ def _get_random_valid_token(text, probability, stack):
 
 
 def _modifyed_token(text, token):
-    if (not token.isalpha() and token != '(') or (text and text[-1] == '('):
+    if token == '-':
+        return ' ' + token
+    if (not token.isalpha() and token not in OPEN_BRACKETS) or (text and text[-1] in OPEN_BRACKETS):
         return token
-    if len(text) == 0:
+    if not text:
         return token.capitalize()
-    if text[-1] in '.?!':
+    if text[-1] in SENTENSE_ENDING_PUNCTUATION:
         return ' ' + token.capitalize()
     return ' ' + token
 
@@ -62,20 +71,21 @@ def _generate_text(probability, depth, tokens_amount):
     text = ''
     stack = []  # stack of opened brackets and quotes
     for step in range(tokens_amount):
-        while (len(last_tokens) > depth) or (not tuple(last_tokens) in probability) or\
+        while (len(last_tokens) > depth) or (tuple(last_tokens) not in probability) or\
                 not list(filter(lambda token: _is_valid_token(text, token, stack),
                                 probability[tuple(last_tokens)].keys())):
             last_tokens.popleft()
         token = _get_random_valid_token(text, probability[tuple(last_tokens)], stack)
 
-        if token in '?!.' and stack:
+        if token in SENTENSE_ENDING_PUNCTUATION and stack:
             token = _get_punctuation_pair(stack[-1])
             stack.pop()
 
         text += _modifyed_token(text, token)
         last_tokens.append(token)
+        print(token)
 
-        if token in '()"\'':
+        if token in PAIRED_PUNCTUATION:
             if stack and stack[-1] == _get_punctuation_pair(token):
                 stack.pop()
             else:
