@@ -69,16 +69,29 @@ def _modifyed_token(text, token):
     return ' ' + token
 
 
-def _generate_text(probability, depth, tokens_amount):
+def _get_valid_last_tokens(last_tokens, depth, probability, stack, text):
+    while (len(last_tokens) > depth) or (tuple(last_tokens) not in probability) or\
+            not list(filter(lambda token: _is_valid_token(text, token, stack),
+                            probability[tuple(last_tokens)].keys())):
+        last_tokens.popleft()
+
+
+def _update_punctuation_stack(stack, token):
+    if token in PAIRED_PUNCTUATION:
+        if stack and stack[-1] == _get_punctuation_pair(token):
+            stack.pop()
+        else:
+            stack.append(token)
+
+
+def _generate_text(probability, depth, tokens_amount, uniform_proba):
     last_tokens = collections.deque()
     text = ''
     stack = []  # stack of opened brackets and quotes
     for step in range(tokens_amount):
-        while (len(last_tokens) > depth) or (tuple(last_tokens) not in probability) or\
-                not list(filter(lambda token: _is_valid_token(text, token, stack),
-                                probability[tuple(last_tokens)].keys())):
-            last_tokens.popleft()
-        token = _get_random_valid_token(text, probability[tuple(last_tokens)], stack)
+        _get_valid_last_tokens(last_tokens, depth, probability, stack, text)
+        key = () if random.random() < uniform_proba else tuple(last_tokens)
+        token = _get_random_valid_token(text, probability[key], stack)
 
         if token in SENTENSE_ENDING_PUNCTUATION and stack:
             token = _get_punctuation_pair(stack[-1])
@@ -87,11 +100,8 @@ def _generate_text(probability, depth, tokens_amount):
         text += _modifyed_token(text, token)
         last_tokens.append(token)
 
-        if token in PAIRED_PUNCTUATION:
-            if stack and stack[-1] == _get_punctuation_pair(token):
-                stack.pop()
-            else:
-                stack.append(token)
+        _update_punctuation_stack(stack, token)
+
     return text
 
 
@@ -103,7 +113,7 @@ def _write_text(output_file, text):
             file.write(text)
 
 
-def generate(probability_file, depth, tokens_amount, output_file):
+def generate(probability_file, depth, tokens_amount, output_file, uniform_proba):
     probability = _get_probability(probability_file)
-    text = _generate_text(probability, depth, tokens_amount)
+    text = _generate_text(probability, depth, tokens_amount, uniform_proba)
     _write_text(output_file, text)

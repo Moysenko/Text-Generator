@@ -28,6 +28,9 @@ $ python3 main.py calculate_probabilities --input_file roadside_picnic.txt --pro
   *  --depth DEPTH                            _maximum length of the sequence of tokens_
   *  --tokens_amount TOKENS_AMOUNT            _length of text to be generated, in tokens_
   *  --output_file OUTPUT_FILE                _file to write text to (by default is set to sys.stdout)_
+  * __ --uniform\_proba UNIFORM\_PROBA          *with a probability 1 - uniform\_proba the next token is\ 
+                                              choosing as before, and with a probability uniform_proba\ 
+                                              token is choosing among all to kens*:
 ```shell
 $ python3 main.py generate_text [-h] [--probabilities_file PROBABILITIES_FILE] [--depth DEPTH] [--tokens_amount TOKENS_AMOUNT] [--output_file OUTPUT_FILE]
 ```
