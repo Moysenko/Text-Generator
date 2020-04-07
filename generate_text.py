@@ -9,6 +9,7 @@ OPEN_BRACKETS = '([{<'
 CLOSE_BRACKETS = ')]}>'
 SENTENSE_ENDING_PUNCTUATION = '.?!'
 PAIRED_PUNCTUATION = OPEN_BRACKETS + CLOSE_BRACKETS + '"\''
+VALID_PUNCTUATION_PAIRS = ['?!', '!!', ',-']
 
 
 def _get_probability(probability_file):
@@ -35,9 +36,11 @@ def _get_random_token(probability):
 
 
 def _is_valid_token(text, token, stack):
-    if (not text or text[-1] in string.punctuation) and token in string.punctuation:
-        return False
     if token in CLOSE_BRACKETS and (not stack or _get_punctuation_pair(stack[-1]) != token):
+        return False
+    if text and (text[-1] in CLOSE_BRACKETS or (text[-1] + token) in VALID_PUNCTUATION_PAIRS):
+        return True
+    if (not text or text[-1] in string.punctuation) and token in string.punctuation:
         return False
     return True
 
@@ -83,7 +86,6 @@ def _generate_text(probability, depth, tokens_amount):
 
         text += _modifyed_token(text, token)
         last_tokens.append(token)
-        print(token)
 
         if token in PAIRED_PUNCTUATION:
             if stack and stack[-1] == _get_punctuation_pair(token):
