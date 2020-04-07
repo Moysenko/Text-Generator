@@ -9,11 +9,11 @@ In _calculate_probabilities_ mode text-generator analizes text and calculates fo
 
 It can be launched in two modes.
 * calculate_probabilities
-  * -h, --help                                _show help message and exit_
-  * --input_file INPUT_FILE                   _file to read text from_
-  * --probabilities_file PROBABILITIES_FILE   _file to write probabilities to_
-  * --depth DEPTH                             _maximum length of the sequence of tokens_
-  * --regex REGEX                             _regular expression to identify token_
+  * -h, --help                                  _show help message and exit_
+  * --input\_file INPUT\_FILE                   _file to read text from_
+  * --probabilities\_file PROBABILITIES\_FILE   _file to write probabilities to_
+  * --depth DEPTH                               _maximum length of the sequence of tokens_
+  * --regex REGEX                               _regular expression to identify token_
 ```shell
 $ python3 main.py calculate_probabilities [-h] [--input_file INPUT_FILE] [--probabilities_file PROBABILITIES_FILE] [--depth DEPTH] [--regex REGEX]
 ```
@@ -23,18 +23,18 @@ $ python3 main.py calculate_probabilities --input_file roadside_picnic.txt --pro
 ```
 
 * generate_text
-  *  -h, --help                               _show this help message and exit_
-  *  --probabilities_file PROBABILITIES_FILE  _file to read probabilities from_
-  *  --depth DEPTH                            _maximum length of the sequence of tokens_
-  *  --tokens_amount TOKENS_AMOUNT            _length of text to be generated, in tokens_
-  *  --output_file OUTPUT_FILE                _file to write text to (by default is set to sys.stdout)_
-  * __ --uniform\_proba UNIFORM\_PROBA          *with a probability 1 - uniform\_proba the next token is\ 
-                                              choosing as before, and with a probability uniform_proba\ 
-                                              token is choosing among all to kens*:
+  *  -h, --help                                 _show this help message and exit_
+  *  --probabilities\_file PROBABILITIES\_FILE  _file to read probabilities from_
+  *  --depth DEPTH                              _maximum length of the sequence of tokens_
+  *  --tokens\_amount TOKENS\_AMOUNT            _length of text to be generated, in tokens_
+  *  --output\_file OUTPUT\_FILE                _file to write text to (by default is set to sys.stdout)_
+  *  --uniform\_proba UNIFORM\_PROBA            *with a probability 1 - uniform\_proba the next token is 
+                                                choosing as before, and with a probability uniform_proba 
+                                                token is choosing among all tokens*:
 ```shell
-$ python3 main.py generate_text [-h] [--probabilities_file PROBABILITIES_FILE] [--depth DEPTH] [--tokens_amount TOKENS_AMOUNT] [--output_file OUTPUT_FILE]
+$ python3 main.py generate_text [-h] [--probabilities_file PROBABILITIES_FILE] [--depth DEPTH] [--tokens_amount TOKENS_AMOUNT] [--output_file OUTPUT_FILE] [--uniform_proba UNIFORM_PROBA]
 ```
 > example
 ```shell
-$ python3 main.py generate_text --probabilities_file probabilities.txt --depth 3 --tokens_amount 200
+$ python3 main.py generate_text --probabilities_file probabilities.txt --depth 3 --tokens_amount 200 --output_file output.txt --uniform_proba 0.05
 ```
