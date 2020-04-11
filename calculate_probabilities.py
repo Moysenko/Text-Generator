@@ -1,52 +1,23 @@
-import string
 import collections
 import pickle
 import re
+import tokens_parser
 
 
-def _remove_trash(word):
-    filtered_word = ''.join([char if (char.isalpha() or char in string.punctuation) else ' ' for char in word])
-    return list(filtered_word.split())
-
-
-def _split_punctuation(word):
-    first_letter = 0
-    prefix = []
-    while first_letter < len(word) and not word[first_letter].isalpha():
-        prefix.append(word[first_letter])
-        first_letter += 1
-
-    last_letter = len(word) - 1
-    suffix = []
-    while last_letter > first_letter and not word[last_letter].isalpha():
-        suffix.append(word[last_letter])
-        last_letter -= 1
-
-    middle = []
-    if first_letter <= last_letter:
-        middle = [word[first_letter: last_letter + 1].lower()]
-
-    return prefix + middle + suffix[::-1]
-
-
-def _get_tokens(input_file, regex):
+def _read_tokens(input_file):
     with open(input_file, "r") as file:
         data = list(file.read().split())
+    return data
 
+
+def _get_tokens(data, regex):
     if regex:
         tokens = []
         for word in data:
             tokens += re.findall(regex, word)
         return tokens
 
-    filtered_data = []
-    for word in data:
-        filtered_data += _remove_trash(word)
-
-    tokens = []
-    for word in filtered_data:
-        tokens += _split_punctuation(word)
-    return tokens
+    return tokens_parser.get_tokens(data)
 
 
 def _get_probabilities(tokens, depth):
@@ -80,6 +51,7 @@ def _save_probabilities(probabilities, probabilities_file):
 
 
 def calculate(input_file, probabilities_file, depth, regex):
-    tokens = _get_tokens(input_file, regex)
+    data = _read_tokens(input_file)
+    tokens = _get_tokens(data, regex)
     probabilities = _get_probabilities(tokens, depth)
     _save_probabilities(probabilities, probabilities_file)
