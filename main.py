@@ -30,9 +30,9 @@ subparser_generate_text.add_argument('--tokens_amount', type=int, required=True,
                                      help='length of text to be generated, in tokens')
 subparser_generate_text.add_argument('--output_file', default='to console',
                                      help='file to write text to (by default is set to sys.stdout)')
-subparser_generate_text.add_argument('--uniform_proba', type=float, default = 0,
+subparser_generate_text.add_argument('--uniform_proba', type=float, default=0,
                                      help='with a probability 1 - uniform_proba the next token is choosing as before,\
-                                      and with a probability uniform_proba token is choosing among all tokens')
+                                     and with a probability uniform_proba token is choosing among all tokens')
 
 args = parser.parse_args()
 
