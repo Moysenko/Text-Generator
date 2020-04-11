@@ -1,108 +1,11 @@
 import pickle
-import collections
-import random
-import string
-import sys
-
-
-OPEN_BRACKETS = '([{<'
-CLOSE_BRACKETS = ')]}>'
-SENTENSE_ENDING_PUNCTUATION = '.?!'
-PAIRED_PUNCTUATION = OPEN_BRACKETS + CLOSE_BRACKETS + '"\''
-VALID_PUNCTUATION_PAIRS = ['?!', '!!', ',-']
+import text_generator
 
 
 def _get_probability(probability_file):
     with open(probability_file, "rb") as file:
         probability = pickle.load(file)
     return probability
-
-
-def _get_punctuation_pair(char):
-    if char in OPEN_BRACKETS:
-        return CLOSE_BRACKETS[OPEN_BRACKETS.find(char)]
-    if char in CLOSE_BRACKETS:
-        return OPEN_BRACKETS[CLOSE_BRACKETS.find(char)]
-    return char
-
-
-def _get_random_token(probability):
-    random_number = random.random()
-    for token, chance in probability.items():
-        if random_number < chance:
-            return token
-        else:
-            random_number -= chance
-
-
-def _is_valid_token(text, token, stack):
-    if token in CLOSE_BRACKETS and (not stack or _get_punctuation_pair(stack[-1]) != token):
-        return False
-    if text and (text[-1] in CLOSE_BRACKETS or (text[-1] + token) in VALID_PUNCTUATION_PAIRS):
-        return True
-    if (not text or text[-1] in string.punctuation) and token in string.punctuation:
-        return False
-    return True
-
-
-def _get_random_valid_token(text, probability, stack):
-    attempts = 100
-    while True:
-        token = _get_random_token(probability)
-        if _is_valid_token(text, token, stack):
-            return token
-        attempts -= 1
-        if not attempts:
-            print("ERROR!!!", text, probability)
-            sys.exit(228)
-
-
-def _modifyed_token(text, token):
-    if token == '-':
-        return ' ' + token
-    if (not token.isalpha() and token not in OPEN_BRACKETS) or (text and text[-1] in OPEN_BRACKETS):
-        return token
-    if not text:
-        return token.capitalize()
-    if text[-1] in SENTENSE_ENDING_PUNCTUATION:
-        return ' ' + token.capitalize()
-    return ' ' + token
-
-
-def _get_valid_last_tokens(last_tokens, depth, probability, stack, text):
-    while (len(last_tokens) > depth) or (tuple(last_tokens) not in probability) or\
-            not list(filter(lambda token: _is_valid_token(text, token, stack),
-                            probability[tuple(last_tokens)].keys())):
-        last_tokens.popleft()
-
-
-def _update_punctuation_stack(stack, token):
-    if token in PAIRED_PUNCTUATION:
-        if stack and stack[-1] == _get_punctuation_pair(token):
-            stack.pop()
-        else:
-            stack.append(token)
-
-
-def _generate_text(probability, depth, tokens_amount, uniform_proba):
-    last_tokens = collections.deque()
-    text = ''
-    stack = []  # stack of opened brackets and quotes
-    for step in range(tokens_amount):
-        _get_valid_last_tokens(last_tokens, depth, probability, stack, text)
-        key = () if random.random() < uniform_proba else tuple(last_tokens)
-        token = _get_random_valid_token(text, probability[key], stack)
-
-        if token in SENTENSE_ENDING_PUNCTUATION and stack:
-            token = _get_punctuation_pair(stack[-1])
-            stack.pop()
-
-        text += _modifyed_token(text, token)
-        last_tokens.append(token)
-
-        _update_punctuation_stack(stack, token)
-
-    return text
 
 
 def _write_text(output_file, text):
@@ -113,7 +16,62 @@ def _write_text(output_file, text):
             file.write(text)
 
 
+def _show_help():
+    print('''
+List of available commands:
+    > help            show list of available commands
+    > generate x      generate x tokens and add them to text
+    > reset           delete text and the tokens history, so the text generating starts from the beginning
+    > start "string without brackets"
+                      set last used tokens to the entered string
+    > show [x]        show x (default: x = 10) most possible tokens
+    > depth x         set the depth to x
+    > text            show current text
+    > exit            write current text and exit
+                  ''')
+
+
+def _interact(generator):
+    commands = {"help": 1,
+                "generate": 2,
+                "reset": 1,
+                "start": 1,
+                "show": 1,
+                "depth": 2,
+                "text": 1,
+                "exit": 1}
+
+    print('Welcome to text generator! Type "help" for help')
+
+    while True:
+        query = input('> ').split()
+        if not query or query[0] not in commands or len(query) < commands[query[0]]:
+            print('Not valid command. Type "help" for help')
+            continue
+
+        if query[0] == 'help':
+            _show_help()
+        elif query[0] == 'generate':
+            generator.add_text(int(query[1]))
+        elif query[0] == 'reset':
+            generator.reset()
+        elif query[0] == 'start':
+            generator.set_last_tokens(query[1:])
+        elif query[0] == 'show':
+            if len(query) > 1:
+                print(generator.get_probability(int(query[1])))
+            else:
+                print(generator.get_probability())
+        elif query[0] == 'depth':
+            generator.set_depth(int(query[1]))
+        elif query[0] == 'text':
+            print(generator.get_text())
+        elif query[0] == 'exit':
+            break
+
+
 def generate(probability_file, depth, tokens_amount, output_file, uniform_proba):
     probability = _get_probability(probability_file)
-    text = _generate_text(probability, depth, tokens_amount, uniform_proba)
-    _write_text(output_file, text)
+    generator = text_generator.generator(probability, depth, uniform_proba)
+    _interact(generator)
+    _write_text(output_file, generator.text)
