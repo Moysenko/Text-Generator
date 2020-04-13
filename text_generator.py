@@ -43,6 +43,8 @@ class generator:
                 return token
             else:
                 random_number -= chance
+        print(f"ERROR!!!!! {key}\n {self.probability[key].items()}")
+        sys.exit(0)
 
     def _get_random_valid_token(self, key):
         attempts = 100
