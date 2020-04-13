@@ -5,7 +5,10 @@ import text_generator
 def _get_probability(probability_file):
     with open(probability_file, "rb") as file:
         probability = pickle.load(file)
-    return probability
+        print('probability loaded')
+        id_to_word = pickle.load(file)
+        print('id_to_word loaded')
+    return probability, id_to_word
 
 
 def _write_text(output_file, text):
@@ -56,7 +59,7 @@ def _interact(generator):
         elif query[0] == 'reset':
             generator.reset()
         elif query[0] == 'start':
-            generator.set_last_tokens(query[1:])
+            generator.set_last_tokens_id(query[1:])
         elif query[0] == 'show':
             if len(query) > 1:
                 print(generator.get_probability(int(query[1])))
@@ -71,7 +74,9 @@ def _interact(generator):
 
 
 def generate(probability_file, depth, tokens_amount, output_file, uniform_proba):
-    probability = _get_probability(probability_file)
-    generator = text_generator.generator(probability, depth, uniform_proba)
+    probability, id_to_word = _get_probability(probability_file)
+    print('probability initialized')
+    generator = text_generator.generator(probability, id_to_word, depth, uniform_proba)
+    print('generator initialized')
     _interact(generator)
     _write_text(output_file, generator.text)
