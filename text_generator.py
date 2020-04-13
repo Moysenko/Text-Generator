@@ -7,8 +7,10 @@ import tokens_parser
 
 
 class generator:
-    def __init__(self, probability, depth, uniform_proba):
+    def __init__(self, probability, id_to_word, depth, uniform_proba):
         self.probability = probability
+        self.id_to_word = id_to_word
+        self.word_to_id = {word: id for id, word in self.id_to_word.items()}
         self.depth = depth
         self.uniform_proba = uniform_proba
         self.reset()
@@ -38,9 +40,9 @@ class generator:
 
     def _get_random_token(self, key):
         random_number = random.random()
-        for token, chance in self.probability[key].items():
+        for token_id, chance in self.probability[key].items():
             if random_number < chance:
-                return token
+                return self.id_to_word[token_id]
             else:
                 random_number -= chance
         print(f"ERROR!!!!! {key}\n {self.probability[key].items()}")
@@ -57,11 +59,11 @@ class generator:
                 print("ERROR!!!", self.text, self.probability[key])
                 sys.exit(228)
 
-    def _get_valid_last_tokens(self):
-        while (len(self.last_tokens) > self.depth) or (tuple(self.last_tokens) not in self.probability) or\
-                not list(filter(lambda token: self._is_valid_token(token),
-                                self.probability[tuple(self.last_tokens)].keys())):
-            self.last_tokens.popleft()
+    def _get_valid_last_tokens_id(self):
+        while (len(self.last_tokens_id) > self.depth) or (tuple(self.last_tokens_id) not in self.probability) or\
+                not list(filter(lambda token_id: self._is_valid_token(self.id_to_word[token_id]),
+                                self.probability[tuple(self.last_tokens_id)].keys())):
+            self.last_tokens_id.popleft()
 
     def _update_punctuation_stack(self, token):
         if token in punctuation.paired_punctuation:
@@ -72,8 +74,8 @@ class generator:
 
     def add_text(self, tokens_amount):
         for step in range(tokens_amount):
-            self._get_valid_last_tokens()
-            key = () if random.random() < self.uniform_proba else tuple(self.last_tokens)
+            self._get_valid_last_tokens_id()
+            key = () if random.random() < self.uniform_proba else tuple(self.last_tokens_id)
             token = self._get_random_valid_token(key)
 
             if token in punctuation.sentence_ending_punctuation and self.stack:
@@ -81,23 +83,33 @@ class generator:
                 self.stack.pop()
 
             self.text += self._modifyed_token(token)
-            self.last_tokens.append(token)
+            self.last_tokens_id.append(self.word_to_id[token])
 
             self._update_punctuation_stack(token)
 
     def reset(self):
-        self.last_tokens = collections.deque()
+        self.last_tokens_id = collections.deque()
         self.text = ''
         self.stack = []
 
-    def set_last_tokens(self, data):
+    def _add_tokens(self, tokens):
+        for token in tokens:
+            if token not in self.word_to_id:
+                token_id = len(self.word_to_id)
+                self.word_to_id[token] = token_id
+                self.id_to_word[token_id] = token
+
+    def set_last_tokens_id(self, data):
         tokens = tokens_parser.get_tokens(data)
-        self.last_tokens = collections.deque(tokens)
+        self._add_tokens(tokens)
+        tokens_id = list(map(lambda token: self.word_to_id[token], tokens))
+        self.last_tokens_id = collections.deque(tokens_id)
 
     def get_probability(self, amount=10):
-        self._get_valid_last_tokens()
-        possible_tokens = list(self.probability[tuple(self.last_tokens)].items())
-        print(self.last_tokens)
+        self._get_valid_last_tokens_id()
+        possible_tokens_id = list(self.probability[tuple(self.last_tokens_id)].items())
+        possible_tokens = [(self.id_to_word[token_id], probability) for token_id, probability in possible_tokens_id]
+        print(tuple(self.id_to_word[token_id] for token_id in self.last_tokens_id))
         possible_tokens.sort(key=lambda item: item[1], reverse=True)
         return possible_tokens[:amount]
 
