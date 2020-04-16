@@ -2,8 +2,10 @@
 
 text-generator supports text based learning and generating new text.
 
+
 ## How it works
 In _calculate_probabilities_ mode text-generator analizes text and calculates for every pair of token __t__ and sequence of tokens __s__ (where __s__ is shorter than depth - constant parameter) probability that __t__ is in text right after __s__. In _generate_text_ mode text-generator makes new text using probabilities calculated during studying.
+
 
 ## Usage
 
@@ -38,3 +40,10 @@ $ python3 main.py generate_text [-h] [--probabilities_file PROBABILITIES_FILE] [
 ```shell
 $ python3 main.py generate_text --probabilities_file probabilities.txt --depth 3 --tokens_amount 200 --output_file output.txt --uniform_proba 0.05
 ```
+
+## Examples of generated text
+Text: Peter Pan,  Depth: 2
+
+---
+
+Thus window. Is the hand, it was not meet houses? A her for we shall for fairies. If fly just why hand, it is perfectly over some mothers romp in have into her john, said john. Tink to, house broken test of breeding; once even her. They could sit it are not when though arm age, john said like her. Been fall of back wayward peter cauliflowers dropped time he did it mind. Gallant great red to. It was the right. She meant religion morning, thatblackbeard's of the some mothers also cheek their and and your nearly fellow make! But in but it, she of this before. What on the children, however, can get me the house believe familiar? Shouted slowly colour forth more! Look at are one of executionyou're distinct casually. Wendy presently already in their to go out. And he asleep he said, and it is mrs. Darling always in the old lady while long ago they aside, so, before and that medicine many bump.

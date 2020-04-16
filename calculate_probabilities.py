@@ -92,7 +92,7 @@ def _get_probabilities(frequences, depth):
     for token in probabilities[()]:
         probabilities[()][token] /= total
 
-    print(len(probabilities[()].keys()))
+    print(len(probabilities[()]))
 
     pairs = _calc_reversed_pairs(frequences[1], word_to_id)
     total_pairs = sum(pairs.values())
@@ -101,7 +101,6 @@ def _get_probabilities(frequences, depth):
     counter = 0
     for n in range(1, depth + 1):
         D = _get_D(frequences[n])
-        print(f"n = {n}")
         for ngram, endings in frequences[n].items():
             total = sum(endings.values())
             alpha = D * len(endings) / total
@@ -114,10 +113,6 @@ def _get_probabilities(frequences, depth):
                     Pkn = probabilities[ngram_id[1:]][token]
                 probabilities[ngram_id][token] = first_part + alpha * Pkn
                 counter += 1
-                if counter % 1000000 == 0:
-                    print(counter, "   |", f"ngrams amount: {len(frequences[n].items())}",
-                          f"words amount: {len(probabilities[()].keys())}")
-                #  print(n, ngram, token, first_part + alpha * Pkn)
 
     return probabilities, id_to_word
 
