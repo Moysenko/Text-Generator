@@ -12,7 +12,7 @@ def _get_probability(probability_file):
 
 
 def _write_text(output_file, text):
-    if output_file == 'to console':
+    if not output_file:
         print(text)
     else:
         with open(output_file, "w") as file:
