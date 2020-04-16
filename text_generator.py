@@ -39,7 +39,6 @@ class generator:
         return ' ' + token
 
     def _get_random_token(self, key):
-        self._make_valid_last_tokens_id()
         random_number = random.random()
         for token_id, chance in self.probability[key].items():
             if random_number < chance:
@@ -51,14 +50,12 @@ class generator:
 
     def _get_random_valid_token(self, key):
         attempts = 100
-        while True:
+        while attempts:
             token = self._get_random_token(key)
             if self._is_valid_token(token):
                 return token
             attempts -= 1
-            if not attempts:
-                print("ERROR!!!", self.text, self.probability[key])
-                sys.exit(228)
+        assert False, f"Error: no valid tokens found.\nkey: {key}, last tokens: {self.last_tokens_id}"
 
     def _make_valid_last_tokens_id(self):
         while (len(self.last_tokens_id) > self.depth) or (tuple(self.last_tokens_id) not in self.probability) or\
@@ -82,6 +79,7 @@ class generator:
             else:
                 token = punctuation.get_punctuation_pair(self.stack[-1])
         else:
+            self._make_valid_last_tokens_id()
             key = () if random.random() < self.uniform_proba else tuple(self.last_tokens_id)
             token = self._get_random_valid_token(key)
 
