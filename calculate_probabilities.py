@@ -20,7 +20,8 @@ def _get_tokens(data, regex):
 
 
 def _get_frequences(tokens, depth):
-    frequences = collections.defaultdict(lambda: collections.defaultdict(int))
+    frequences = [collections.defaultdict(lambda: collections.defaultdict(int))
+                  for length in range(depth + 1)]
     for token_index, token in enumerate(tokens):
         for length in range(0, depth + 1):
             if length <= token_index:
@@ -41,7 +42,7 @@ def _get_D(frequences):
 
 
 def _calc_reversed_pairs(frequences, word_to_id):
-    pairs = collections.defaultdict()
+    pairs = collections.defaultdict(int)
     for value in frequences.values():
         for key in value.keys():
             pairs[word_to_id[key]] += 1
@@ -49,8 +50,8 @@ def _calc_reversed_pairs(frequences, word_to_id):
 
 
 def _calc_words_id(words):
-    word_to_id = collections.defaultdict()
-    id_to_word = words.keys()
+    word_to_id = collections.defaultdict(int)
+    id_to_word = list(words)
     for word_id, word in enumerate(words):
         word_to_id[word] = word_id
     return word_to_id, id_to_word
@@ -87,7 +88,8 @@ def _get_probabilities(frequences, depth):
     word_to_id, id_to_word = _calc_words_id(frequences[0][()].keys())
 
     # calc for 0-gram
-    probabilities[()] = collections.defaultdict(int, frequences[0][()].items())
+    probabilities[()] = collections.defaultdict(int, [(word_to_id[token], frequence)
+                                                      for token, frequence in frequences[0][()].items()])
     total = sum(probabilities[()].values())
     for token in probabilities[()]:
         probabilities[()][token] /= total
