@@ -36,8 +36,8 @@ subparser_generate_text.add_argument('--uniform_proba', type=float, default=0,
 args = parser.parse_args()
 
 if args.mode == 'calculate_probabilities':
-    calculate_probabilities.calculate(args.input_file, args.probabilities_file,
-                                      args.depth, args.regex)
+    calculate_probabilities.calculate_probabilities_for_text(args.input_file, args.probabilities_file,
+                                                             args.depth, args.regex)
 else:
     generate_text.generate(args.probabilities_file, args.depth, args.tokens_amount,
                            args.output_file, args.uniform_proba)

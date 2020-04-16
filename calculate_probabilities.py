@@ -40,25 +40,18 @@ def _get_D(frequences):
     return D
 
 
-def _add_to_dict(dictionary, key):
-    if key in dictionary:
-        dictionary[key] += 1
-    else:
-        dictionary[key] = 1
-
-
 def _calc_reversed_pairs(frequences, word_to_id):
-    pairs = {}
+    pairs = collections.defaultdict()
     for value in frequences.values():
         for key in value.keys():
-            _add_to_dict(pairs, word_to_id[key])
+            pairs[word_to_id[key]] += 1
     return pairs
 
 
 def _calc_words_id(words):
-    word_to_id, id_to_word = {}, {}
+    word_to_id = collections.defaultdict()
+    id_to_word = words.keys()
     for word_id, word in enumerate(words):
-        id_to_word[word_id] = word
         word_to_id[word] = word_id
     return word_to_id, id_to_word
 
@@ -67,27 +60,10 @@ def _get_deque_id(deque, word_to_id):
     return tuple(word_to_id[word] for word in deque)
 
 
-def _get_probabilities(frequences, depth):
-    probabilities = dict()
-
-    word_to_id, id_to_word = _calc_words_id(frequences[0][()].keys())
-
-    for n in range(depth + 1):
-        for key in frequences[n].keys():
-            probabilities[_get_deque_id(key, word_to_id)] = {}
-
-    # calc for 0-gram
-    probabilities[()] = {word_to_id[word]: frequence for word, frequence in frequences[0][()].items()}
-    total = sum(probabilities[()].values())
-    for token in probabilities[()]:
-        probabilities[()][token] /= total
-
-    print(len(probabilities[()]))
-
+def _calc_ngrams(probabilities, frequences, depth, word_to_id, id_to_word):
     pairs = _calc_reversed_pairs(frequences[1], word_to_id)
     total_pairs = sum(pairs.values())
 
-    # using the equation for n-grams and for bigram
     counter = 0
     for n in range(1, depth + 1):
         D = _get_D(frequences[n])
@@ -96,13 +72,30 @@ def _get_probabilities(frequences, depth):
             alpha = D * len(endings) / total
             ngram_id = _get_deque_id(ngram, word_to_id)
             for token in probabilities[()].keys():
-                first_part = max(endings.get(id_to_word[token], 0) - D, 0) / total
+                first_part = max(endings[id_to_word[token]] - D, 0) / total
                 if n == 1:  # bigram
-                    Pkn = pairs.get(token, 0) / total_pairs
+                    Pkn = pairs[token] / total_pairs
                 else:  # n-gram
                     Pkn = probabilities[ngram_id[1:]][token]
                 probabilities[ngram_id][token] = first_part + alpha * Pkn
                 counter += 1
+
+
+def _get_probabilities(frequences, depth):
+    probabilities = collections.defaultdict(collections.defaultdict(int))
+
+    word_to_id, id_to_word = _calc_words_id(frequences[0][()].keys())
+
+    # calc for 0-gram
+    probabilities[()] = collections.defaultdict(int, frequences[0][()].items())
+    total = sum(probabilities[()].values())
+    for token in probabilities[()]:
+        probabilities[()][token] /= total
+
+    print(len(probabilities[()]))
+
+    # using the equation for n-grams and for bigram
+    _calc_ngrams(probabilities, frequences, depth, word_to_id, id_to_word)
 
     return probabilities, id_to_word
 
@@ -113,7 +106,7 @@ def _save_probabilities(probabilities, id_to_word, probabilities_file):
         pickle.dump(id_to_word, file)
 
 
-def calculate(input_file, probabilities_file, depth, regex):
+def calculate_probabilities_for_text(input_file, probabilities_file, depth, regex):
     data = _read_tokens(input_file)
     tokens = _get_tokens(data, regex)
     frequences = _get_frequences(tokens, depth)
