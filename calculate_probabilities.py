@@ -23,19 +23,18 @@ def _get_tokens(data, regex):
 def _get_frequences(tokens, depth):
     frequences = [dict() for length in range(depth + 1)]
     sequences = [collections.deque() for i in range(depth + 1)]
-    for i in range(len(tokens)):
+    for token_index, token in enumerate(tokens):
         for length in range(0, depth + 1):
-            sequences[length].append(tokens[i])
-            if length < i:
+            sequences[length].append(token)
+            if length < token_index:
                 sequences[length].popleft()
-            if length <= i:
+            if length <= token_index:
                 current_sequence = tuple(sequences[length])[:length]
-                current_ending = sequences[length][-1]
                 if current_sequence in frequences[length]:
-                    occurrences_amount = frequences[length][current_sequence].get(current_ending, 0)
-                    frequences[length][current_sequence][current_ending] = occurrences_amount + 1
+                    occurrences_amount = frequences[length][current_sequence].get(token, 0)
+                    frequences[length][current_sequence][token] = occurrences_amount + 1
                 else:
-                    frequences[length][current_sequence] = {current_ending: 1}
+                    frequences[length][current_sequence] = {token: 1}
 
     return frequences
 
