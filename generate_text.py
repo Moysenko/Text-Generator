@@ -76,7 +76,7 @@ def _interact(generator):
 def generate(probability_file, depth, tokens_amount, output_file, uniform_proba):
     probability, id_to_word = _get_probability(probability_file)
     print('probability initialized')
-    generator = text_generator.generator(probability, id_to_word, depth, uniform_proba)
+    generator = text_generator.Generator(probability, id_to_word, depth, uniform_proba)
     print('generator initialized')
     _interact(generator)
     _write_text(output_file, generator.text)

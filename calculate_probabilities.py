@@ -6,8 +6,7 @@ import tokens_parser
 
 def _read_tokens(input_file):
     with open(input_file, "r") as file:
-        data = list(file.read().split())
-    return data
+        return list(file.read().split())
 
 
 def _get_tokens(data, regex):
@@ -21,20 +20,12 @@ def _get_tokens(data, regex):
 
 
 def _get_frequences(tokens, depth):
-    frequences = [dict() for length in range(depth + 1)]
-    sequences = [collections.deque() for i in range(depth + 1)]
+    frequences = collections.defaultdict(collections.defaultdict(int))
     for token_index, token in enumerate(tokens):
         for length in range(0, depth + 1):
-            sequences[length].append(token)
-            if length < token_index:
-                sequences[length].popleft()
             if length <= token_index:
-                current_sequence = tuple(sequences[length])[:length]
-                if current_sequence in frequences[length]:
-                    occurrences_amount = frequences[length][current_sequence].get(token, 0)
-                    frequences[length][current_sequence][token] = occurrences_amount + 1
-                else:
-                    frequences[length][current_sequence] = {token: 1}
+                current_sequence = tuple(tokens[token_index - length: token_index])
+                frequences[length][current_sequence][token] += 1
 
     return frequences
 
@@ -66,9 +57,9 @@ def _calc_reversed_pairs(frequences, word_to_id):
 
 def _calc_words_id(words):
     word_to_id, id_to_word = {}, {}
-    for id, word in enumerate(words):
-        id_to_word[id] = word
-        word_to_id[word] = id
+    for word_id, word in enumerate(words):
+        id_to_word[word_id] = word
+        word_to_id[word] = word_id
     return word_to_id, id_to_word
 
 

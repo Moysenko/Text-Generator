@@ -6,21 +6,23 @@ import punctuation
 import tokens_parser
 
 
-class generator:
+class Generator:
+    self.MAX_GENERATE_ATTEMPTS = 100
+
     def __init__(self, probability, id_to_word, depth, uniform_proba):
         self.probability = probability
         self.id_to_word = id_to_word
-        self.word_to_id = {word: id for id, word in self.id_to_word.items()}
+        self.word_to_id = {word: word_id for word_id, word in self.id_to_word.items()}
         self.depth = depth
         self.uniform_proba = uniform_proba
         self.reset()
 
     def _is_valid_token(self, token):
         if token in punctuation.CLOSE_BRACKETS and\
-                (not self.stack or punctuation.get_punctuation_pair(self.stack[-1]) != token):
+                (not self.stack or punctuation.PUNCTUATION_PAIR[self.stack[-1]] != token):
             return False
         if self.text and (self.text[-1] in punctuation.CLOSE_BRACKETS or
-                          (self.text[-1] + token) in punctuation.VALID_PUNCTUATION_PAIRS):
+                         (self.text[-1] + token) in punctuation.VALID_PUNCTUATION_PAIRS):
             return True
         if (not self.text or self.text[-1] in string.punctuation) and token in string.punctuation:
             return False
@@ -49,12 +51,10 @@ class generator:
         sys.exit(0)
 
     def _get_random_valid_token(self, key):
-        attempts = 100
-        while attempts:
+        for attempt in range(self.MAX_GENERATE_ATTEMPTS):
             token = self._get_random_token(key)
             if self._is_valid_token(token):
                 return token
-            attempts -= 1
         assert False, f"Error: no valid tokens found.\nkey: {key}, last tokens: {self.last_tokens_id}"
 
     def _make_valid_last_tokens_id(self):
@@ -65,7 +65,7 @@ class generator:
 
     def _update_punctuation_stack(self, token):
         if token in punctuation.PAIRED_PUNCTUATION:
-            if self.stack and self.stack[-1] == punctuation.get_punctuation_pair(token):
+            if self.stack and self.stack[-1] == punctuation.PUNCTUATION_PAIR(token):
                 self.stack.pop()
             else:
                 self.stack.append(token)
@@ -77,7 +77,7 @@ class generator:
                 token = sentence_ending
                 sentence_ending = None
             else:
-                token = punctuation.get_punctuation_pair(self.stack[-1])
+                token = punctuation.PUNCTUATION_PAIR(self.stack[-1])
         else:
             self._make_valid_last_tokens_id()
             key = () if random.random() < self.uniform_proba else tuple(self.last_tokens_id)
