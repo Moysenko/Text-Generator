@@ -7,7 +7,7 @@ import tokens_parser
 
 
 class Generator:
-    self.MAX_GENERATE_ATTEMPTS = 100
+    MAX_GENERATE_ATTEMPTS = 100
 
     def __init__(self, probability, id_to_word, depth, uniform_proba):
         self.probability = probability
@@ -19,7 +19,7 @@ class Generator:
 
     def _is_valid_token(self, token):
         if token in punctuation.CLOSE_BRACKETS and\
-                (not self.stack or punctuation.PUNCTUATION_PAIR[self.stack[-1]] != token):
+                (not self.opening_brackets_stack or punctuation.PUNCTUATION_PAIR[self.opening_brackets_stack[-1]] != token):
             return False
         if self.text and (self.text[-1] in punctuation.CLOSE_BRACKETS or
                          (self.text[-1] + token) in punctuation.VALID_PUNCTUATION_PAIRS):
@@ -47,8 +47,7 @@ class Generator:
                 return self.id_to_word[token_id]
             else:
                 random_number -= chance
-        print(f"ERROR!!!!! {key}\n {self.probability[key].items()}")
-        sys.exit(0)
+        assert False, f"Error: sum of probabilities for key = {key} isn't equal to 1"
 
     def _get_random_valid_token(self, key):
         for attempt in range(self.MAX_GENERATE_ATTEMPTS):
@@ -59,31 +58,31 @@ class Generator:
 
     def _make_valid_last_tokens_id(self):
         while (len(self.last_tokens_id) > self.depth) or (tuple(self.last_tokens_id) not in self.probability) or\
-                not list(filter(lambda token_id: self._is_valid_token(self.id_to_word[token_id]),
-                                self.probability[tuple(self.last_tokens_id)].keys())):
+                not [self._is_valid_token(self.id_to_word[token_id])
+                     for token_id in self.probability[tuple(self.last_tokens_id)].keys()]:
             self.last_tokens_id.popleft()
 
     def _update_punctuation_stack(self, token):
         if token in punctuation.PAIRED_PUNCTUATION:
-            if self.stack and self.stack[-1] == punctuation.PUNCTUATION_PAIR(token):
-                self.stack.pop()
+            if self.opening_brackets_stack and self.opening_brackets_stack[-1] == punctuation.PUNCTUATION_PAIR(token):
+                self.opening_brackets_stack.pop()
             else:
-                self.stack.append(token)
+                self.opening_brackets_stack.append(token)
 
     def _get_generating_step(self, sentence_ending):
         is_step_skipped = False
         if sentence_ending:
-            if not self.stack:
+            if not self.opening_brackets_stack:
                 token = sentence_ending
                 sentence_ending = None
             else:
-                token = punctuation.PUNCTUATION_PAIR(self.stack[-1])
+                token = punctuation.PUNCTUATION_PAIR(self.opening_brackets_stack[-1])
         else:
             self._make_valid_last_tokens_id()
             key = () if random.random() < self.uniform_proba else tuple(self.last_tokens_id)
             token = self._get_random_valid_token(key)
 
-            if token in punctuation.SENTENCE_ENDING_PUNCTUATION and self.stack:
+            if token in punctuation.SENTENCE_ENDING_PUNCTUATION and self.opening_brackets_stack:
                 sentence_ending = token
                 is_step_skipped = True
 
@@ -107,7 +106,7 @@ class Generator:
     def reset(self):
         self.last_tokens_id = collections.deque()
         self.text = ''
-        self.stack = []
+        self.opening_brackets_stack = []
 
     def _add_tokens(self, tokens):
         for token in tokens:
@@ -124,10 +123,10 @@ class Generator:
 
     def get_probability(self, amount=10):
         self._make_valid_last_tokens_id()
-        possible_tokens_id = list(self.probability[tuple(self.last_tokens_id)].items())
+        possible_tokens_id = self.probability[tuple(self.last_tokens_id)].items()
         possible_tokens = [(self.id_to_word[token_id], probability) for token_id, probability in possible_tokens_id]
         print(tuple(self.id_to_word[token_id] for token_id in self.last_tokens_id))
-        possible_tokens.sort(key=lambda item: item[1], reverse=True)
+        possible_tokens.sort(key=lambda item: -item[1])
         return possible_tokens[:amount]
 
     def set_depth(self, depth):
