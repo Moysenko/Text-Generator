@@ -1,6 +1,5 @@
 import collections
 import random
-import sys
 import string
 import punctuation
 import tokens_parser
