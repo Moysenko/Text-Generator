@@ -18,9 +18,11 @@ def _get_tokens(data, regex):
 
     return tokens_parser.get_tokens(data)
 
+def _default_dict_with_int_constructor():
+    return collections.defaultdict(int)
 
 def _get_frequences(tokens, depth):
-    frequences = [collections.defaultdict(lambda: collections.defaultdict(int))
+    frequences = [collections.defaultdict(_default_dict_with_int_constructor())
                   for length in range(depth + 1)]
     for token_index, token in enumerate(tokens):
         for length in range(0, depth + 1):
@@ -83,7 +85,7 @@ def _calc_ngrams(probabilities, frequences, depth, word_to_id, id_to_word):
 
 
 def _get_probabilities(frequences, depth):
-    probabilities = collections.defaultdict(lambda: collections.defaultdict(int))
+    probabilities = collections.defaultdict(_default_dict_with_int_constructor())
 
     word_to_id, id_to_word = _calc_words_id(frequences[0][()].keys())
 
