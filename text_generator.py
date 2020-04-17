@@ -51,14 +51,22 @@ class   Generator:
             choice -= probability
 
     def _make_valid_last_tokens_id(self):
+<<<<<<< HEAD
         while (len(self.last_tokens_id) > self.depth) or\
                 (tuple(self.last_tokens_id) not in self.probability.probabilities) or\
+=======
+        while (len(self.last_tokens_id) > self.depth) or (tuple(self.last_tokens_id) not in self.probability) or\
+>>>>>>> 0caf20a2f1a488008c85e557b428faa39c5607a6
                 not self._get_valid_tokens(tuple(self.last_tokens_id)):
             self.last_tokens_id.popleft()
 
     def _update_punctuation_stack(self, token):
         if token in punctuation.PAIRED_PUNCTUATION:
+<<<<<<< HEAD
             if self.opening_brackets_stack and self.opening_brackets_stack[-1] == punctuation.PUNCTUATION_PAIR[token]:
+=======
+            if self.opening_brackets_stack and self.opening_brackets_stack[-1] == punctuation.PUNCTUATION_PAIR(token):
+>>>>>>> 0caf20a2f1a488008c85e557b428faa39c5607a6
                 self.opening_brackets_stack.pop()
             else:
                 self.opening_brackets_stack.append(token)
@@ -70,7 +78,11 @@ class   Generator:
                 token = sentence_ending
                 sentence_ending = None
             else:
+<<<<<<< HEAD
                 token = punctuation.PUNCTUATION_PAIR[self.opening_brackets_stack[-1]]
+=======
+                token = punctuation.PUNCTUATION_PAIR(self.opening_brackets_stack[-1])
+>>>>>>> 0caf20a2f1a488008c85e557b428faa39c5607a6
         else:
             self._make_valid_last_tokens_id()
             key = () if random.random() < self.uniform_proba else tuple(self.last_tokens_id)
@@ -92,7 +104,11 @@ class   Generator:
                 continue
 
             self.text += self._get_modifyed_token(token)
+<<<<<<< HEAD
             self.last_tokens_id.append(self.probability.token_to_id[token])
+=======
+            self.last_tokens_id.append(self.probability.word_to_id[token])
+>>>>>>> 0caf20a2f1a488008c85e557b428faa39c5607a6
 
             self._update_punctuation_stack(token)
             tokens_generated += 1
@@ -105,7 +121,11 @@ class   Generator:
     def set_last_tokens_id(self, data):
         tokens = tokens_parser.get_tokens(data)
         self.probability._add_tokens(tokens)
+<<<<<<< HEAD
         tokens_id = [self.probability.token_to_id[token] for token in tokens]
+=======
+        tokens_id = [self.probability.word_to_id[token] for token in tokens]
+>>>>>>> 0caf20a2f1a488008c85e557b428faa39c5607a6
         self.last_tokens_id = collections.deque(tokens_id)
 
     def get_probability(self, amount=10):

@@ -6,7 +6,11 @@ import NgramProbabilities
 def _get_probability(probability_file):
     with open(probability_file, "rb") as file:
         probability = NgramProbabilities.NgramProbabilities(probabilities=pickle.load(file),
+<<<<<<< HEAD
                                                             id_to_token=pickle.load(file))
+=======
+                                                            id_to_word=pickle.load(file))
+>>>>>>> 0caf20a2f1a488008c85e557b428faa39c5607a6
     return probability
 
 
