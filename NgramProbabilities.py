@@ -32,34 +32,52 @@ class NgramProbabilities:
         probability_ngrams_dict = collections.defaultdict(list)
         for token_id, probability in probabilities.items():
             probability_ngrams_dict[probability].append(token_id)
+
+        max_tokens_probability, max_tokens = 0, 0
+        for probability, tokens_id in probability_ngrams_dict.items():
+            if len(tokens_id) > max_tokens:
+                max_tokens_probability = probability
+                max_tokens = len(tokens_id)
+        probability_ngrams_dict[max_tokens_probability] = []
+
         probability_ngrams_list = sorted(list(probability_ngrams_dict.items()))
-        probability_ngrams_list[-1] = []
         return probability_ngrams_list
 
     def _get_ngram_probabilities_list(self, ngram_id):
-        unused_tokens = set(self.id_to_token)
+        assert self.probabilities[ngram_id], "Error: probabilities[ngram_id] is not defined yet"
+
+        unused_tokens = set(self.token_to_id.values())
         ngram_probabilities = []
+        empty_probability = 0
         for probability, tokens in self.probabilities[ngram_id]:
             if tokens:
                 for token in tokens:
-                    ngram_probabilities.append((probability, token))
+                    ngram_probabilities.append((token, probability))
                     unused_tokens.remove(token)
             else:
-                for token in unused_tokens:
-                    ngram_probabilities.append((probability, token))
+                empty_probability = probability
+        for token in unused_tokens:
+            ngram_probabilities.append((token, empty_probability))
         return ngram_probabilities
 
     def _init_ngrams(self, frequences, depth):
         pairs = self._calc_reversed_pairs(frequences[1])
         total_pairs = sum(pairs.values())
 
+        total_dict_size = len(self.id_to_token) * sum(len(item) for item in frequences)
+
+        print(f"{len(self.id_to_token)} different tokens!")
+
+        counter = 0
         for n in range(1, depth + 1):
+            print(f"--------------> n = {n} <---------------")
             D = self._get_D(frequences[n])
             for ngram, endings in frequences[n].items():
                 total = sum(endings.values())
                 alpha = D * len(endings) / total
                 ngram_id = self._get_tokens_deque_id(ngram)
                 ngram_probabilities = {}
+                local_counter = 0
                 for token_id, token_probability in self._get_ngram_probabilities_list(ngram_id[1:]):
                     first_part = max(endings[self.id_to_token[token_id]] - D, 0) / total
                     if n == 1:  # bigram
@@ -67,13 +85,14 @@ class NgramProbabilities:
                     else:  # n-gram
                         Pkn = token_probability
                     ngram_probabilities[token_id] = first_part + alpha * Pkn
-                self.probabilities[ngram_id] = self._get_probability_ngrams_list(ngram_probabilities)
 
-                print(f"----------{ngram}---------")
-                for probability in set(self.probabilities[()].values()):
-                    print(probability, list(self.probabilities[()].values()).count(probability))
-                exit(0)
-                print("===================================================")
+                    counter += 1
+                    local_counter += 1
+                    if counter % 1000000 == 0:
+                        print(counter * 100 // total_dict_size, '%', sep='', end='      ')
+                        print(f"{counter * 100} out of {total_dict_size}")
+                assert local_counter == len(self.id_to_token), self._get_ngram_probabilities_list(ngram_id[1:])
+                self.probabilities[ngram_id] = self._get_probability_ngrams_list(ngram_probabilities)
 
     def _init_0grams(self, frequences):
         zero_gram = dict([(self.token_to_id[token], frequence)
@@ -89,16 +108,16 @@ class NgramProbabilities:
         self._init_0grams(frequences)
         self._init_ngrams(frequences, depth)
 
-    def _init_from_probabilities(self, probabilities, id_to_word):
+    def _init_from_probabilities(self, probabilities, id_to_token):
         self.probabilities = probabilities
-        self.id_to_token = id_to_word
-        self.token_to_id = {word: word_id for word_id, word in self.id_to_token.items()}
+        self.id_to_token = id_to_token
+        self.token_to_id = {word: word_id for word_id, word in enumerate(self.id_to_token)}
 
-    def __init__(self, frequences=None, depth=None, probabilities=None, id_to_word=None):
+    def __init__(self, frequences=None, depth=None, probabilities=None, id_to_token=None):
         if frequences:
             self._init_from_frequences(frequences, depth)
         else:
-            self._init_from_probabilities(probabilities, id_to_word)
+            self._init_from_probabilities(probabilities, id_to_token)
 
     def get_ngram_endings(self, ngram):
         return [(self.id_to_token[token_id], probability)
