@@ -39,21 +39,12 @@ def _get_frequences(tokens, depth):
 def _save_probabilities(probabilities, probabilities_file):
     with open(probabilities_file, "wb") as file:
         pickle.dump(probabilities.probabilities, file)
-<<<<<<< HEAD
         pickle.dump(probabilities.id_to_token, file)
-=======
-        pickle.dump(probabilities.id_to_word, file)
->>>>>>> 0caf20a2f1a488008c85e557b428faa39c5607a6
 
 
 def calculate_probabilities_for_text(input_file, probabilities_file, depth, regex):
     data = _read_tokens(input_file)
     tokens = _get_tokens(data, regex)
     frequences = _get_frequences(tokens, depth)
-<<<<<<< HEAD
     probabilities = NgramProbabilities.NgramProbabilities(frequences=frequences, depth=depth)
-=======
-    probabilities = NgramProbabilities.NgramProbabilities(frequences=frequences,
-                                                          depth=depth)
->>>>>>> 0caf20a2f1a488008c85e557b428faa39c5607a6
     _save_probabilities(probabilities, probabilities_file)
