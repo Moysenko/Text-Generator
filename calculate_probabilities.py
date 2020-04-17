@@ -46,5 +46,6 @@ def calculate_probabilities_for_text(input_file, probabilities_file, depth, rege
     data = _read_tokens(input_file)
     tokens = _get_tokens(data, regex)
     frequences = _get_frequences(tokens, depth)
-    probabilities = NgramProbabilities.NgramProbabilities(frequences, depth)
+    probabilities = NgramProbabilities.NgramProbabilities(frequences=frequences,
+                                                          depth=depth)
     _save_probabilities(probabilities, probabilities_file)

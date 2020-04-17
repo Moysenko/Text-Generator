@@ -5,7 +5,7 @@ import punctuation
 import tokens_parser
 
 
-class Generator:
+class   Generator:
     MAX_GENERATE_ATTEMPTS = 100
 
     def __init__(self, probability, depth, uniform_proba):
@@ -92,7 +92,7 @@ class Generator:
 
             self.text += self._get_modifyed_token(token)
             self.last_tokens_id.append(self.probability.word_to_id[token])
-            
+
             self._update_punctuation_stack(token)
             tokens_generated += 1
 
@@ -104,14 +104,12 @@ class Generator:
     def set_last_tokens_id(self, data):
         tokens = tokens_parser.get_tokens(data)
         self.probability._add_tokens(tokens)
-        tokens_id = list(map(lambda token: self.probability.word_to_id[token], tokens))
+        tokens_id = [self.probability.word_to_id[token] for token in tokens]
         self.last_tokens_id = collections.deque(tokens_id)
 
     def get_probability(self, amount=10):
         self._make_valid_last_tokens_id()
-        possible_tokens_id = self.probability[tuple(self.last_tokens_id)].items()
-        possible_tokens = [(self.probability.id_to_word[token_id], probability) for token_id, probability in possible_tokens_id]
-        print(tuple(self.probability.id_to_word[token_id] for token_id in self.last_tokens_id))
+        possible_tokens = self.probability.get_ngram_endings(tuple(self.last_tokens_id))
         possible_tokens.sort(key=lambda item: -item[1])
         return possible_tokens[:amount]
 

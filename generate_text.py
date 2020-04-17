@@ -5,7 +5,8 @@ import NgramProbabilities
 
 def _get_probability(probability_file):
     with open(probability_file, "rb") as file:
-        probability = NgramProbabilities.NgramProbabilities(pickle.load(file), pickle.load(file))
+        probability = NgramProbabilities.NgramProbabilities(probabilities=pickle.load(file),
+                                                            id_to_word=pickle.load(file))
     return probability
 
 
