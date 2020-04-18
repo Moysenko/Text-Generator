@@ -71,7 +71,7 @@ def _interact(generator):
             print('Not valid command. Type "help" for help')
 
 
-def generate(probability_file, depth, tokens_amount, output_file, uniform_proba):
+def run_interactive_text_generator(probability_file, depth, output_file, uniform_proba):
     probability = _get_probability(probability_file)
     print('probability initialized')
     generator = text_generator.Generator(probability, depth, uniform_proba)
