@@ -1,4 +1,5 @@
 import pickle
+import argparse
 import text_generator
 import NgramProbabilities
 
@@ -34,42 +35,40 @@ List of available commands:
 
 
 def _interact(generator):
-    commands = {"help": 1,
-                "generate": 2,
-                "reset": 1,
-                "start": 1,
-                "show": 1,
-                "depth": 2,
-                "text": 1,
-                "exit": 1}
+    commands = ["help", "generate", "reset", "start", "show", "depth", "text", "exit"]
+
+    parser = argparse.ArgumentParser(prog='InteractiveGenerator')
+    parser.add_argument('query', choices=commands)
+    parser.add_argument('args', nargs=argparse.REMAINDER)
 
     print('Welcome to text generator! Type "help" for help')
 
     while True:
         query = input('> ').split()
-        if not query or query[0] not in commands or len(query) < commands[query[0]]:
-            print('Not valid command. Type "help" for help')
-            continue
+        cmd = parser.parse_args(query)
 
-        if query[0] == 'help':
-            _show_help()
-        elif query[0] == 'generate':
-            generator.add_text(int(query[1]))
-        elif query[0] == 'reset':
-            generator.reset()
-        elif query[0] == 'start':
-            generator.set_last_tokens_id(query[1:])
-        elif query[0] == 'show':
-            if len(query) > 1:
-                print(generator.get_probability(int(query[1])))
-            else:
-                print(generator.get_probability())
-        elif query[0] == 'depth':
-            generator.set_depth(int(query[1]))
-        elif query[0] == 'text':
-            print(generator.get_text())
-        elif query[0] == 'exit':
-            break
+        try:
+            if cmd.query == 'help':
+                _show_help()
+            elif cmd.query == 'generate':
+                generator.add_text(int(cmd.args[0]))
+            elif cmd.query == 'reset':
+                generator.reset()
+            elif cmd.query == 'start':
+                generator.set_last_tokens_id(cmd.args)
+            elif cmd.query == 'show':
+                if cmd.args:
+                    print(generator.get_probability(int(cmd.args[0])))
+                else:
+                    print(generator.get_probability())
+            elif cmd.query == 'depth':
+                generator.set_depth(int(query[1]))
+            elif cmd.query == 'text':
+                print(generator.get_text())
+            elif cmd.query == 'exit':
+                break
+        except Exception:
+            print('Not valid command. Type "help" for help')
 
 
 def generate(probability_file, depth, tokens_amount, output_file, uniform_proba):

@@ -17,7 +17,7 @@ def _get_tokens(data, regex):
             tokens += re.findall(regex, word)
         return tokens
 
-    return tokens_parser.get_tokens(data)
+    return tokens_parser.get_tokens(data)   # better than regex: it's easier to understand get_tokens() code
 
 
 def _default_dict_with_int_constructor():

@@ -69,7 +69,6 @@ class NgramProbabilities:
 
         counter = 0
         for n in range(1, depth + 1):
-            print(f"--------------> n = {n} <---------------")
             D = self._get_D(frequences[n])
             for ngram, endings in frequences[n].items():
                 total = sum(endings.values())
@@ -88,8 +87,7 @@ class NgramProbabilities:
                     counter += 1
                     local_counter += 1
                     if counter % 1000000 == 0:
-                        print(counter * 100 // total_dict_size, '%', sep='', end='      ')
-                        print(f"{counter * 100} out of {total_dict_size}")
+                        print(counter * 100 // total_dict_size, '% done', sep='')
                 assert local_counter == len(self.id_to_token), self._get_ngram_probabilities_list(ngram_id[1:])
                 self.probabilities[ngram_id] = self._get_probability_ngrams_list(ngram_probabilities)
 
