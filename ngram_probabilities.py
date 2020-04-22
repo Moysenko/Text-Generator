@@ -3,7 +3,7 @@ import collections
 
 class NgramProbabilities:
     @staticmethod
-    def _get_D(self, frequences):
+    def _get_D(frequences):
         N12 = [0, 0]
         for endings in frequences.values():
             count = sum(endings.values())
