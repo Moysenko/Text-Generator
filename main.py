@@ -5,9 +5,10 @@ import generate_text
 parser = argparse.ArgumentParser(prog='TextGen',
                                  description='Text generator based on probability of words combinations.')
 
-subparsers = parser.add_subparsers(help='In case mode is set to "calculate_probabilities", \
-                                   TextGen calculates probabilities of n-grams based on a text passed to the program. \
-                                   Otherwise, TextGen generates text using calculated probabilities', dest='mode')
+subparsers = parser.add_subparsers(help='In case mode is set to "calculate_probabilities", TextGen calculates\
+                                         probabilities of n-grams based on a text passed to the program. \
+                                         Otherwise, TextGen generates text using calculated probabilities',
+                                   dest='mode')
 
 subparser_calculate_probabilities = subparsers.add_parser('calculate_probabilities')
 subparser_generate_text = subparsers.add_parser('generate_text')
@@ -28,7 +29,7 @@ subparser_generate_text.add_argument('--depth', type=int, required=True,
 # subparser_generate_text.add_argument('--tokens_amount', type=int, required=True,
 #                                      help='length of text to be generated, in tokens')
 subparser_generate_text.add_argument('--output_file', default=None,
-                                      help='file to write text to (by default is set to sys.stdout)')
+                                     help='file to write text to (by default is set to sys.stdout)')
 subparser_generate_text.add_argument('--uniform_proba', type=float, default=0,
                                      help='with a probability 1 - uniform_proba the next token is choosing as before,\
                                            and with a probability uniform_proba token is choosing among all tokens')

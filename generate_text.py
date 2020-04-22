@@ -1,13 +1,13 @@
 import pickle
 import argparse
 import text_generator
-import NgramProbabilities
+import ngram_probabilities
 
 
 def _get_probability(probability_file):
     with open(probability_file, "rb") as file:
-        probability = NgramProbabilities.NgramProbabilities(probabilities=pickle.load(file),
-                                                            id_to_token=pickle.load(file))
+        probability = ngram_probabilities.NgramProbabilities(probabilities=pickle.load(file),
+                                                             id_to_token=pickle.load(file))
     return probability
 
 

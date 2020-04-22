@@ -5,7 +5,7 @@ import punctuation
 import tokens_parser
 
 
-class   Generator:
+class Generator:
     MAX_GENERATE_ATTEMPTS = 100
 
     def __init__(self, probability, depth, uniform_proba):
@@ -16,10 +16,12 @@ class   Generator:
 
     def _is_valid_token(self, token):
         if token in punctuation.CLOSE_BRACKETS and\
-                (not self.opening_brackets_stack or punctuation.PUNCTUATION_PAIR[self.opening_brackets_stack[-1]] != token):
+                (not self.opening_brackets_stack or
+                 punctuation.PUNCTUATION_PAIR[self.opening_brackets_stack[-1]] != token):
             return False
         if self.text and (self.text[-1] in punctuation.CLOSE_BRACKETS or
-                         (self.text[-1] + token) in punctuation.VALID_PUNCTUATION_PAIRS):
+                          (self.text[-1] + token) in punctuation.VALID_PUNCTUATION_PAIRS):
+
             return True
         if (not self.text or self.text[-1] in string.punctuation) and token in string.punctuation:
             return False
