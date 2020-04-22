@@ -5,7 +5,5 @@ __pycache__/
 GOT.txt
 IT.txt
 PP.txt
-<<<<<<< HEAD
 my_current_30_percent_limit.txt
-=======
->>>>>>> 0caf20a2f1a488008c85e557b428faa39c5607a6
+.idea

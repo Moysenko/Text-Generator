@@ -1,7 +1,9 @@
 import collections
 
+
 class NgramProbabilities:
-    def _get_D(self, frequences):
+    @staticmethod
+    def _get_D(frequences):
         N12 = [0, 0]
         for endings in frequences.values():
             count = sum(endings.values())
@@ -28,7 +30,6 @@ class NgramProbabilities:
         return tuple(self.token_to_id[word] for word in deque)
 
     def _get_probability_ngrams_list(self, probabilities):
-        probabilities_set = set(probabilities.values())
         probability_ngrams_dict = collections.defaultdict(list)
         for token_id, probability in probabilities.items():
             probability_ngrams_dict[probability].append(token_id)
@@ -59,37 +60,40 @@ class NgramProbabilities:
             ngram_probabilities.append((token, empty_probability))
         return ngram_probabilities
 
+    def _calc_probabilities_for_ngram(self, n, D, counter, pairs, total_pairs,
+                                      total_dict_size, ngram, endings):
+        total = sum(endings.values())
+        alpha = D * len(endings) / total
+        ngram_id = self._get_tokens_deque_id(ngram)
+        ngram_probabilities = {}
+
+        for token_id, token_probability in self._get_ngram_probabilities_list(ngram_id[1:]):
+            first_part = max(endings[self.id_to_token[token_id]] - D, 0) / total
+            if n == 1:  # bigram
+                Pkn = pairs[token_id] / total_pairs
+            else:  # n-gram
+                Pkn = token_probability
+            ngram_probabilities[token_id] = first_part + alpha * Pkn
+
+            counter += 1
+            if counter % 1000000 == 0:
+                print(counter * 100 // total_dict_size, '% done', sep='')
+
+        self.probabilities[ngram_id] = self._get_probability_ngrams_list(ngram_probabilities)
+
     def _init_ngrams(self, frequences, depth):
         pairs = self._calc_reversed_pairs(frequences[1])
         total_pairs = sum(pairs.values())
 
         total_dict_size = len(self.id_to_token) * sum(len(item) for item in frequences)
-
         print(f"{len(self.id_to_token)} different tokens!")
 
         counter = 0
         for n in range(1, depth + 1):
             D = self._get_D(frequences[n])
             for ngram, endings in frequences[n].items():
-                total = sum(endings.values())
-                alpha = D * len(endings) / total
-                ngram_id = self._get_tokens_deque_id(ngram)
-                ngram_probabilities = {}
-                local_counter = 0
-                for token_id, token_probability in self._get_ngram_probabilities_list(ngram_id[1:]):
-                    first_part = max(endings[self.id_to_token[token_id]] - D, 0) / total
-                    if n == 1:  # bigram
-                        Pkn = pairs[token_id] / total_pairs
-                    else:  # n-gram
-                        Pkn = token_probability
-                    ngram_probabilities[token_id] = first_part + alpha * Pkn
-
-                    counter += 1
-                    local_counter += 1
-                    if counter % 1000000 == 0:
-                        print(counter * 100 // total_dict_size, '% done', sep='')
-                assert local_counter == len(self.id_to_token), self._get_ngram_probabilities_list(ngram_id[1:])
-                self.probabilities[ngram_id] = self._get_probability_ngrams_list(ngram_probabilities)
+                self._calc_probabilities_for_ngram(n, D, counter, pairs, total_pairs,
+                                                   total_dict_size, ngram, endings)
 
     def _init_0grams(self, frequences):
         zero_gram = dict([(self.token_to_id[token], frequence)

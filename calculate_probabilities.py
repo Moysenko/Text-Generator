@@ -2,7 +2,7 @@ import collections
 import pickle
 import re
 import tokens_parser
-import NgramProbabilities
+import ngram_probabilities
 
 
 def _read_tokens(input_file):
@@ -47,5 +47,5 @@ def calculate_probabilities_for_text(input_file, probabilities_file, depth, rege
     tokens = _get_tokens(data, regex)
     print(f"input_file consists of {len(tokens)} words")
     frequences = _get_frequences(tokens, depth)
-    probabilities = NgramProbabilities.NgramProbabilities(frequences=frequences, depth=depth)
+    probabilities = ngram_probabilities.NgramProbabilities(frequences=frequences, depth=depth)
     _save_probabilities(probabilities, probabilities_file)
