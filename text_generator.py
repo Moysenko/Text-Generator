@@ -2,7 +2,7 @@ import collections
 import random
 import string
 import re
-from sympbols import CLOSE_BRACKETS, OPEN_BRACKETS, VALID_PUNCTUATION_PAIRS, \
+from punctuation import CLOSE_BRACKETS, OPEN_BRACKETS, VALID_PUNCTUATION_PAIRS, \
     SENTENCE_ENDING_PUNCTUATION, PUNCTUATION_PAIR, PAIRED_PUNCTUATION
 import tokens_parser
 
@@ -116,7 +116,7 @@ class Generator:
 
     def set_last_tokens_id(self, data):
         tokens = tokens_parser.get_tokens(data)
-        self.probability._add_tokens(tokens)
+        self.probability.add_tokens(tokens)
         tokens_id = [self.probability.token_to_id[token] for token in tokens]
         self.last_tokens_id = collections.deque(tokens_id)
 

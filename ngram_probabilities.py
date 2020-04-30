@@ -115,7 +115,7 @@ class NgramProbabilities:
         return [(self.id_to_token[token_id], probability)
                 for token_id, probability in self._get_ngram_probabilities_list(ngram)]
 
-    def _add_tokens(self, tokens):
+    def add_tokens(self, tokens):
         for token in tokens:
             if token not in self.token_to_id:
                 token_id = len(self.id_to_token)
