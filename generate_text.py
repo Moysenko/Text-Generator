@@ -45,7 +45,11 @@ def _interact(generator):
 
     while True:
         query = input('> ').split()
-        cmd = parser.parse_args(query)
+        try:
+            cmd = parser.parse_args(query)
+        except SystemExit:
+            print('Try again, please')
+            continue
 
         try:
             if cmd.query == 'help':
@@ -73,8 +77,6 @@ def _interact(generator):
 
 def run_interactive_text_generator(probability_file, depth, output_file, uniform_proba):
     probability = _get_probability(probability_file)
-    print('probability initialized')
     generator = text_generator.Generator(probability, depth, uniform_proba)
-    print('generator initialized')
     _interact(generator)
     _write_text(output_file, generator.text)

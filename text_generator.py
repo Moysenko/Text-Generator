@@ -15,13 +15,12 @@ class Generator:
         self.reset()
 
     def _is_valid_token(self, token):
-        if token in punctuation.CLOSE_BRACKETS and\
+        if token in punctuation.CLOSE_BRACKETS and token not in punctuation.OPEN_BRACKETS and\
                 (not self.opening_brackets_stack or
                  punctuation.PUNCTUATION_PAIR[self.opening_brackets_stack[-1]] != token):
             return False
         if self.text and (self.text[-1] in punctuation.CLOSE_BRACKETS or
                           (self.text[-1] + token) in punctuation.VALID_PUNCTUATION_PAIRS):
-
             return True
         if (not self.text or self.text[-1] in string.punctuation) and token in string.punctuation:
             return False
@@ -30,6 +29,17 @@ class Generator:
     def _get_modifyed_token(self, token):
         if token == '-':
             return ' ' + token
+        if token in punctuation.OPEN_BRACKETS and token in punctuation.CLOSE_BRACKETS:
+            if self.opening_brackets_stack and self.opening_brackets_stack[-1] == token:
+                return token
+            else:
+                return ' ' + token
+        if token.isalpha() and self.text and \
+                self.text[-1] in punctuation.OPEN_BRACKETS and self.text[-1] in punctuation.CLOSE_BRACKETS:
+            if self.opening_brackets_stack and self.opening_brackets_stack[-1] == self.text[-1]:
+                return token
+            else:
+                return ' ' + token
         if (not token.isalpha() and token not in punctuation.OPEN_BRACKETS) or\
                 (self.text and self.text[-1] in punctuation.OPEN_BRACKETS):
             return token
@@ -93,7 +103,8 @@ class Generator:
             if is_step_skipped:
                 continue
 
-            self.text += self._get_modifyed_token(token)
+            modifyed_token = self._get_modifyed_token(token)
+            self.text += modifyed_token
             self.last_tokens_id.append(self.probability.token_to_id[token])
 
             self._update_punctuation_stack(token)
