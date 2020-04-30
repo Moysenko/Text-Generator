@@ -80,6 +80,7 @@ class NgramProbabilities:
                 print(counter * 100 // total_dict_size, '% done', sep='')
 
         self.probabilities[ngram_id] = self._get_probability_ngrams_list(ngram_probabilities)
+        return counter
 
     def _init_ngrams(self, frequences, depth):
         pairs = self._calc_reversed_pairs(frequences[1])
@@ -92,8 +93,8 @@ class NgramProbabilities:
         for n in range(1, depth + 1):
             D = self._get_D(frequences[n])
             for ngram, endings in frequences[n].items():
-                self._calc_probabilities_for_ngram(n, D, counter, pairs, total_pairs,
-                                                   total_dict_size, ngram, endings)
+                counter = self._calc_probabilities_for_ngram(n, D, counter, pairs, total_pairs,
+                                                             total_dict_size, ngram, endings)
 
     def _init_0grams(self, frequences):
         zero_gram = dict([(self.token_to_id[token], frequence)
