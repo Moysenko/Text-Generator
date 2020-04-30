@@ -1,13 +1,13 @@
 import collections
 import random
 import string
-import punctuation
+import re
+from sympbols import CLOSE_BRACKETS, OPEN_BRACKETS, VALID_PUNCTUATION_PAIRS, \
+    SENTENCE_ENDING_PUNCTUATION, PUNCTUATION_PAIR, PAIRED_PUNCTUATION
 import tokens_parser
 
 
 class Generator:
-    MAX_GENERATE_ATTEMPTS = 100
-
     def __init__(self, probability, depth, uniform_proba):
         self.probability = probability
         self.depth = depth
@@ -15,42 +15,41 @@ class Generator:
         self.reset()
 
     def _is_valid_token(self, token):
-        if token in punctuation.CLOSE_BRACKETS and token not in punctuation.OPEN_BRACKETS and\
+        if token in CLOSE_BRACKETS and token not in OPEN_BRACKETS and\
                 (not self.opening_brackets_stack or
-                 punctuation.PUNCTUATION_PAIR[self.opening_brackets_stack[-1]] != token):
+                 PUNCTUATION_PAIR[self.opening_brackets_stack[-1]] != token):
             return False
-        if self.text and (self.text[-1] in punctuation.CLOSE_BRACKETS or
-                          (self.text[-1] + token) in punctuation.VALID_PUNCTUATION_PAIRS):
+        if self.text and (self.text[-1] in CLOSE_BRACKETS or
+                          (self.text[-1] + token) in VALID_PUNCTUATION_PAIRS):
             return True
         if (not self.text or self.text[-1] in string.punctuation) and token in string.punctuation:
             return False
         return True
 
     def _get_modifyed_token(self, token):
-        if token == '-':
-            return ' ' + token
-        if token in punctuation.OPEN_BRACKETS and token in punctuation.CLOSE_BRACKETS:
+        if token in OPEN_BRACKETS and token in CLOSE_BRACKETS:
             if self.opening_brackets_stack and self.opening_brackets_stack[-1] == token:
                 return token
             else:
                 return ' ' + token
-        if token.isalpha() and self.text and \
-                self.text[-1] in punctuation.OPEN_BRACKETS and self.text[-1] in punctuation.CLOSE_BRACKETS:
+        if re.search("[-\w]+", token) and self.text and \
+                self.text[-1] in OPEN_BRACKETS and self.text[-1] in CLOSE_BRACKETS:
             if self.opening_brackets_stack and self.opening_brackets_stack[-1] == self.text[-1]:
                 return token
             else:
                 return ' ' + token
-        if (not token.isalpha() and token not in punctuation.OPEN_BRACKETS) or\
-                (self.text and self.text[-1] in punctuation.OPEN_BRACKETS):
+        if (not re.search("[-\w]+", token) and token not in OPEN_BRACKETS) or\
+                (self.text and self.text[-1] in OPEN_BRACKETS):
             return token
         if not self.text:
             return token.capitalize()
-        if self.text[-1] in punctuation.SENTENCE_ENDING_PUNCTUATION:
+        if self.text[-1] in SENTENCE_ENDING_PUNCTUATION:
             return ' ' + token.capitalize()
         return ' ' + token
 
     def _get_valid_tokens(self, ngram):
-        return [token for token in self.probability.get_ngram_endings(ngram) if self._is_valid_token(token[0])]
+        return [(token, prob) for token, prob in self.probability.get_ngram_endings(ngram)
+                if self._is_valid_token(token)]
 
     def _get_random_valid_token(self, key):
         valid_tokens = self._get_valid_tokens(key)
@@ -69,8 +68,8 @@ class Generator:
             self.last_tokens_id.popleft()
 
     def _update_punctuation_stack(self, token):
-        if token in punctuation.PAIRED_PUNCTUATION:
-            if self.opening_brackets_stack and self.opening_brackets_stack[-1] == punctuation.PUNCTUATION_PAIR[token]:
+        if token in PAIRED_PUNCTUATION:
+            if self.opening_brackets_stack and self.opening_brackets_stack[-1] == PUNCTUATION_PAIR[token]:
                 self.opening_brackets_stack.pop()
             else:
                 self.opening_brackets_stack.append(token)
@@ -82,13 +81,13 @@ class Generator:
                 token = sentence_ending
                 sentence_ending = None
             else:
-                token = punctuation.PUNCTUATION_PAIR[self.opening_brackets_stack[-1]]
+                token = PUNCTUATION_PAIR[self.opening_brackets_stack[-1]]
         else:
             self._make_valid_last_tokens_id()
             key = () if random.random() < self.uniform_proba else tuple(self.last_tokens_id)
             token = self._get_random_valid_token(key)
 
-            if token in punctuation.SENTENCE_ENDING_PUNCTUATION and self.opening_brackets_stack:
+            if token in SENTENCE_ENDING_PUNCTUATION and self.opening_brackets_stack:
                 sentence_ending = token
                 is_step_skipped = True
 

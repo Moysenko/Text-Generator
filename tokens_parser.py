@@ -3,7 +3,7 @@ import string
 
 def _remove_trash(word):
     filtered_word = ''.join([char if (char.isalpha() or char in string.punctuation) else ' ' for char in word])
-    return list(filtered_word.split())
+    return filtered_word.split()
 
 
 def _split_punctuation(word):

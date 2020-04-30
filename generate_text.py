@@ -1,14 +1,6 @@
-import pickle
 import argparse
 import text_generator
 import ngram_probabilities
-
-
-def _get_probability(probability_file):
-    with open(probability_file, "rb") as file:
-        probability = ngram_probabilities.NgramProbabilities(probabilities=pickle.load(file),
-                                                             id_to_token=pickle.load(file))
-    return probability
 
 
 def _write_text(output_file, text):
@@ -76,7 +68,7 @@ def _interact(generator):
 
 
 def run_interactive_text_generator(probability_file, depth, output_file, uniform_proba):
-    probability = _get_probability(probability_file)
+    probability = ngram_probabilities.NgramProbabilities.read_probability(probability_file)
     generator = text_generator.Generator(probability, depth, uniform_proba)
     _interact(generator)
     _write_text(output_file, generator.text)

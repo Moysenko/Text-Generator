@@ -1,15 +1,16 @@
 import collections
+import pickle
 
 
 class NgramProbabilities:
     @staticmethod
     def _get_D(frequences):
-        N12 = [0, 0]
+        n12 = [0, 0]
         for endings in frequences.values():
             count = sum(endings.values())
             if 1 <= count <= 2:
-                N12[count - 1] += 1
-        D = N12[0] / (N12[0] + 2 * N12[1]) if N12[0] + N12[1] > 0 else 0
+                n12[count - 1] += 1
+        D = n12[0] / (n12[0] + 2 * n12[1]) if n12[0] + n12[1] > 0 else 0
         return D
 
     def _calc_reversed_pairs(self, frequences):
@@ -40,7 +41,7 @@ class NgramProbabilities:
                 max_tokens = len(tokens_id)
         probability_ngrams_dict[max_tokens_probability] = []
 
-        probability_ngrams_list = sorted(list(probability_ngrams_dict.items()))
+        probability_ngrams_list = sorted(probability_ngrams_dict.items())
         return probability_ngrams_list
 
     def _get_ngram_probabilities_list(self, ngram_id):
@@ -104,22 +105,11 @@ class NgramProbabilities:
             zero_gram[token] /= total
         self.probabilities[()] = self._get_probability_ngrams_list(zero_gram)
 
-    def _init_from_frequences(self, frequences, depth):
+    def __init__(self, frequences, depth):
         self.probabilities = collections.defaultdict(list)
         self.token_to_id, self.id_to_token = self._calc_words_id(frequences[0][()].keys())
         self._init_0grams(frequences)
         self._init_ngrams(frequences, depth)
-
-    def _init_from_probabilities(self, probabilities, id_to_token):
-        self.probabilities = probabilities
-        self.id_to_token = id_to_token
-        self.token_to_id = {word: word_id for word_id, word in enumerate(self.id_to_token)}
-
-    def __init__(self, frequences=None, depth=None, probabilities=None, id_to_token=None):
-        if frequences:
-            self._init_from_frequences(frequences, depth)
-        else:
-            self._init_from_probabilities(probabilities, id_to_token)
 
     def get_ngram_endings(self, ngram):
         return [(self.id_to_token[token_id], probability)
@@ -131,3 +121,12 @@ class NgramProbabilities:
                 token_id = len(self.id_to_token)
                 self.id_to_token.append(token)
                 self.token_to_id[token] = token_id
+
+    def save_probabilities(self, probabilities_file):
+        with open(probabilities_file, "wb") as file:
+            pickle.dump(self, file)
+
+    @staticmethod
+    def read_probability(probability_file):
+        with open(probability_file, "rb") as file:
+            return pickle.load(file)

@@ -1,34 +1,27 @@
-import collections
-import pickle
+from collections import defaultdict
 import re
-import tokens_parser
+# import tokens_parser
 import ngram_probabilities
+import string
 
 
-def _read_tokens(input_file):
+def _read_data(input_file):
     with open(input_file, "r") as file:
-        return list(file.read().split())
+        return file.read()
 
 
 def _get_tokens(data, regex):
     if regex:
-        tokens = []
-        for word in data:
-            tokens += re.findall(regex, word)
-        return tokens
+        return re.findall(regex, data)
 
-    return tokens_parser.get_tokens(data)   # better than regex: it's easier to understand get_tokens() code
-
-
-def _default_dict_with_int_constructor():
-    return collections.defaultdict(int)
-
+    tokens = re.findall(f"([-\w]+|[{string.punctuation}])", data)
+    print(tokens)
+    return tokens
 
 def _get_frequences(tokens, depth):
-    frequences = [collections.defaultdict(_default_dict_with_int_constructor)
-                  for length in range(depth + 1)]
+    frequences = [defaultdict(lambda: defaultdict(int)) for length in range(depth + 1)]
     for token_index, token in enumerate(tokens):
-        for length in range(0, depth + 1):
+        for length in range(depth + 1):
             if length <= token_index:
                 current_sequence = tuple(tokens[token_index - length: token_index])
                 frequences[length][current_sequence][token] += 1
@@ -36,16 +29,10 @@ def _get_frequences(tokens, depth):
     return frequences
 
 
-def _save_probabilities(probabilities, probabilities_file):
-    with open(probabilities_file, "wb") as file:
-        pickle.dump(probabilities.probabilities, file)
-        pickle.dump(probabilities.id_to_token, file)
-
-
 def calculate_probabilities_for_text(input_file, probabilities_file, depth, regex):
-    data = _read_tokens(input_file)
+    data = _read_data(input_file)
     tokens = _get_tokens(data, regex)
     print(f"input_file consists of {len(tokens)} words")
     frequences = _get_frequences(tokens, depth)
     probabilities = ngram_probabilities.NgramProbabilities(frequences=frequences, depth=depth)
-    _save_probabilities(probabilities, probabilities_file)
+    probabilities.save_probabilities(probabilities_file)
