@@ -5,6 +5,6 @@ PAIRED_PUNCTUATION = OPEN_BRACKETS + CLOSE_BRACKETS
 VALID_PUNCTUATION_PAIRS = ['?!', '!!', ',-']
 
 PUNCTUATION_PAIR = {}
-for openBracket, closeBracket in zip(OPEN_BRACKETS, CLOSE_BRACKETS):  # declaration of PUNCTUATION_PAIR
-    PUNCTUATION_PAIR[openBracket] = closeBracket
-    PUNCTUATION_PAIR[closeBracket] = openBracket
+for open_bracket, close_bracket in zip(OPEN_BRACKETS, CLOSE_BRACKETS):  # declaration of PUNCTUATION_PAIR
+    PUNCTUATION_PAIR[open_bracket] = close_bracket
+    PUNCTUATION_PAIR[close_bracket] = open_bracket

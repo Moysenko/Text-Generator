@@ -19,8 +19,7 @@ class Generator:
                 (not self.opening_brackets_stack or
                  PUNCTUATION_PAIR[self.opening_brackets_stack[-1]] != token):
             return False
-        if self.text and (self.text[-1] in CLOSE_BRACKETS or
-                          (self.text[-1] + token) in VALID_PUNCTUATION_PAIRS):
+        if self.text and (self.text[-1] + token) in VALID_PUNCTUATION_PAIRS:
             return True
         if (not self.text or self.text[-1] in string.punctuation) and token in string.punctuation:
             return False
@@ -32,13 +31,13 @@ class Generator:
                 return token
             else:
                 return ' ' + token
-        if re.search("[-\w]+", token) and self.text and \
+        if re.search(r"[-\w]+", token) and self.text and \
                 self.text[-1] in OPEN_BRACKETS and self.text[-1] in CLOSE_BRACKETS:
             if self.opening_brackets_stack and self.opening_brackets_stack[-1] == self.text[-1]:
                 return token
             else:
                 return ' ' + token
-        if (not re.search("[-\w]+", token) and token not in OPEN_BRACKETS) or\
+        if (not re.search(r"[-\w]+", token) and token not in OPEN_BRACKETS) or\
                 (self.text and self.text[-1] in OPEN_BRACKETS):
             return token
         if not self.text:
