@@ -1,0 +1,10 @@
+input_file.txt
+output_file.txt
+probabilities_file.txt
+__pycache__/
+GOT.txt
+IT.txt
+PP.txt
+WAP.txt
+my_current_30_percent_limit.txt
+.idea
