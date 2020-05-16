@@ -2,7 +2,6 @@
 
 text-generator supports text based learning and generating new text.
 
-
 ## How it works
 In _calculate_probabilities_ mode text-generator analizes text and calculates for every pair of token __t__ and 
 sequence of tokens __s__ (where __s__ is shorter than **depth** - constant parameter) probability that __t__ is in text right
@@ -49,3 +48,4 @@ Text: Peter Pan,  Depth: 3
 ---
 
 James m. Barrie, sir. A nana to little by his way. Beginning of fairies. Have been there are in the and the. Suitable was up by this time pan lip fly in her! He went again, and when wrote of here was though. Peter was a what not ran to him from peter would bite were and skylights (morgan's skylights like, said doubtfully in by the point he if he in sounded pet off, the floor, looking no pity, the dog to their, lot now (but shadow find round and)). Of the. I know you were huskily boylike, was killed by itisn't it struck, round thebed-post! Do you kill him. Up danger him until at he, and there you could not leapt tucked would spirit room funny address should have mr. Darling was told in of wendy, he said. You could, and it was so small they kings.
+
